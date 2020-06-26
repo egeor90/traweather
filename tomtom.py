@@ -11,18 +11,20 @@ city = raw_input('Enter the city: ')
 country = raw_input('Enter the country: ')
 
 # city = 'Krakow'
-#country = 'Poland'
-#date_ = "2020-02-11"
+# country = 'Poland'
+# date_ = "2020-02-11"
 
 # retrieve json file
-# url = "https://api.midway.tomtom.com/ranking/live/ITA_milan"
-# url = "https://api.weather.midway.tomtom.com/weather/live/ITA_milan"
-# url = "https://api.midway.tomtom.com/ranking/dailyStats/ITA_milan"
-
 url = "https://api.midway.tomtom.com/ranking/dailyStats/"+country[0:3].upper()+"_"+city.lower()
-#url = "https://api.midway.tomtom.com/ranking/dailyStats/CHN_"+city.lower()
-req_ = requests.get(url)
-json_ = req_.json()
+
+if requests.get(url).status_code == 200:
+    request = requests.get(url)
+else:
+    count_init = raw_input('Enter three characters symbol of the country (e.g. China > CHN, United States > USA): ')
+    url = "https://api.midway.tomtom.com/ranking/dailyStats/"+count_init.upper()+"_"+city.lower()
+    request = requests.get(url)
+
+json_ = request.json()
 
 pd.set_option("display.max_rows", False)
 
@@ -32,7 +34,6 @@ df['datetime'] = pd.to_datetime(df['date'])
 df = df.set_index('datetime')
 df.drop(['date'], axis=1, inplace=True)
 
-#df.head()
 df['week'] = df['week'].astype(str).str[:-5]
 
 # plt.style.use("ggplot")
@@ -42,7 +43,6 @@ df['week'] = df['week'].astype(str).str[:-5]
 # plt.box(False)
 
 #df.loc[df.index.strftime("%Y-%m-%d") == date_]
-
 
 df.to_csv(cwd+"/"+city.lower()+'_traffic.csv', encoding = 'utf-8')
 
